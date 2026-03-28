@@ -26,7 +26,7 @@ const edgeTypes = { default: HierarchyEdge };
 // import { WelcomeToast } from "@/components/ui/toast";
 import GraphCanvas from "@/components/graph/graphCanvas";
 import CustomNode from "@/components/graph/customGraph";
-import { HierarchyEdge } from "@/components/graph/heirarchyGraph";Header
+import { HierarchyEdge } from "@/components/graph/heirarchyGraph";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useGraph } from "@/hooks/useGraph";
 import getLayoutedElements from "@/components/graph/layout";
@@ -49,12 +49,10 @@ export default function GraphPageWrapper() {
 function GraphPage() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-//   const [showWelcomeTip, setShowWelcomeTip] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    // Show tip after a slight delay for better experience
-    // const timer = setTimeout(() => setShowWelcomeTip(true), 2000);
+
 
   }, []);
   const graph = useGraph();
@@ -70,7 +68,7 @@ function GraphPage() {
   const router = useRouter();
   const { setCenter, fitView } = useReactFlow();
 
-  /* CMD+K shortcut */
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
@@ -92,7 +90,7 @@ function GraphPage() {
       .slice(0, 8);
   }, [graph.nodes, searchQuery]);
 
-  /* Load graph data + auto-trace first API node */
+
   useEffect(() => {
     const savedData = localStorage.getItem("graphData");
     if (!savedData) return;
@@ -194,7 +192,7 @@ function GraphPage() {
 
   return (
     <div className="w-full h-screen bg-background flex flex-col overflow-hidden relative font-sans text-foreground transition-colors duration-500">
-      {/* PAGE-WIDE ATMOSPHERIC LAYER */}
+
       <div className="absolute inset-0 pointer-events-none z-0">
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_0%_0%,rgba(168,85,247,0.03),transparent_50%),radial-gradient(circle at 100% 100%,rgba(99,102,241,0.03),transparent_50%)]" />
         <div className="absolute inset-0 opacity-[0.015] dark:opacity-[0.03] mix-blend-overlay pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} />

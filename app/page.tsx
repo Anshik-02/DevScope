@@ -9,7 +9,6 @@ import Footer from "@/components/footer";
 export default function Home() {
   return (
     <div className="relative min-h-screen overflow-x-hidden">
-      {/* Global mesh grid background */}
       <div
         className="pointer-events-none fixed inset-0 -z-20"
         style={{

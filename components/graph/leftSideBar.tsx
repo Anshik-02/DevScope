@@ -31,9 +31,7 @@ const nodeColors: Record<string, string> = {
 interface Props {
   nodes: Node[];
   edges: Edge[];
-
   activeRouteLabel: string;
-
   onSelectNode: (node: Node) => void;
   onOpenSearch: () => void;
   onResetView: () => void;
@@ -72,7 +70,7 @@ export default function LeftSidebar({
       ? "bg-amber-500"
       : "bg-emerald-500";
 
-  // Strategic Calculations
+
   const mostConnectedNode = [...nodes].sort((a, b) => {
     const aCount = edges.filter(e => e.source === a.id || e.target === a.id).length;
     const bCount = edges.filter(e => e.source === b.id || e.target === b.id).length;
@@ -131,7 +129,7 @@ export default function LeftSidebar({
               </Tooltip>
             </div>
 
-            {/* Entry list */}
+    
             <div className="flex flex-col gap-1 max-h-[340px] overflow-y-auto pr-2 pb-2">
               {entryNodes.map((n, index) => (
                 <div key={n.id} className="flex flex-col">
@@ -175,15 +173,15 @@ export default function LeftSidebar({
         )}
       </div>
 
-      {/* Complexity & Analysis */}
+    
       <div className="p-6 flex-grow flex flex-col bg-muted/10 overflow-y-auto">
         <h3 className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-6 italic">
           Strategic Analysis
         </h3>
 
-        {/* ANALYSIS CARDS */}
+
         <div className="space-y-4 mb-8">
-          {/* Most Connected */}
+
           <div className="p-4 bg-card/40 border border-border/50 rounded-2xl flex flex-col gap-2 group/stat hover:border-purple-500/30 transition-all">
             <div className="flex items-center gap-2 text-purple-500">
               <Activity size={12} />
@@ -195,7 +193,6 @@ export default function LeftSidebar({
             </div>
           </div>
 
-          {/* Critical Path */}
           <div className="p-4 bg-card/40 border border-border/50 rounded-2xl flex flex-col gap-2 group/stat hover:border-red-500/30 transition-all">
             <div className="flex items-center gap-2 text-red-500">
               <Target size={12} />
@@ -213,7 +210,7 @@ export default function LeftSidebar({
         </h3>
 
         <div className="bg-card/40 backdrop-blur-sm rounded-[24px]  border border-border/50 mb-6 p-6 flex flex-col justify-center gap-6 relative group ">
-          {/* subtle background glow */}
+
           <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/5 blur-3xl rounded-full" />
           
           <div className="flex items-center gap-4 group/item">

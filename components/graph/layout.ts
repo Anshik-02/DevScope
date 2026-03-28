@@ -37,7 +37,7 @@ export default function getLayoutedElements(nodes: Node[], edges: Edge[]) {
 
   return {
     nodes: nodes.map((node) => {
-      const pos      = dagreGraph.node(node.id);
+      const pos= dagreGraph.node(node.id);
       const sequence = sortedNodeIds.indexOf(node.id) + 1;
       return {
         ...node,
@@ -53,7 +53,7 @@ export default function getLayoutedElements(nodes: Node[], edges: Edge[]) {
     }),
   edges: edges.map((e, index) => ({
   ...e,
-  id: e.id || `${e.source}-${e.target}-${index}`, // 🔥 FIX
+  id: e.id || `${e.source}-${e.target}-${index}`, 
   type: "default",
 }))
   };

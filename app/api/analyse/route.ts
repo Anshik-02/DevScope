@@ -134,14 +134,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid link provided" }, { status: 400 });
     }
 
-    // Support both full GitHub URLs and bare "owner/repo" strings
+
     let owner: string;
     let repo: string;
 
     const trimmed = link.trim().replace(/\.git$/, "").replace(/\/$/, "");
 
     if (trimmed.includes("github.com")) {
-      // e.g. https://github.com/owner/repo
+
       const url = new URL(trimmed.startsWith("http") ? trimmed : `https://${trimmed}`);
       const pathParts = url.pathname.split("/").filter(Boolean);
       owner = pathParts[0];
@@ -366,14 +366,14 @@ export async function POST(req: Request) {
 
 const { folderNodes, containmentEdges } = buildContainmentGraph(graphData.map((item) => item.file));
 
-// Deduplicate nodes by id - return array of node objects (not Map entries)
+
 const nodeMap = new Map<string, any>();
 [...folderNodes, ...nodes].forEach((n) => {
   if (!nodeMap.has(n.id)) nodeMap.set(n.id, n);
 });
 const UniqueNodes = Array.from(nodeMap.values());
 
-// Deduplicate edges by source-target-label key
+
 const edgeMap = new Map<string, any>();
 [...containmentEdges, ...edges].forEach((e) => {
   const key = `${e.source}-${e.target}-${e.label}`;

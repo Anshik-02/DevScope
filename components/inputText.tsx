@@ -25,7 +25,6 @@ const submitHandler = async () => {
   try {
     const res = await axios.post("/api/analyse", { link });
 
-    // Check for an error returned in the JSON body
     if (res.data?.error) {
       setError(res.data.error);
       setLoading(false);
@@ -35,12 +34,11 @@ const submitHandler = async () => {
     if (res.data?.nodes) {
       localStorage.setItem("graphData", JSON.stringify(res.data));
 
-      // Clean up github url to just owner/repo
       let repoStr = link.trim();
       if (repoStr.includes("github.com/")) {
         repoStr = repoStr.split("github.com/")[1];
       }
-      // Remove trailing slashes
+
       repoStr = repoStr.replace(/\/$/, "");
       localStorage.setItem("repoName", repoStr);
 

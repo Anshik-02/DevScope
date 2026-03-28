@@ -77,10 +77,10 @@ export default function GraphHeader({
         </div>
       </div>
 
-      {/* RIGHT */}
+
       <div className="flex items-center gap-8">
         
-        {/* LEGEND */}
+
         <div className="flex items-center gap-4 text-[9px] font-black uppercase tracking-widest bg-muted px-4 py-2 rounded-full border border-border">
           {Object.entries(nodeColors).map(([t, c]) => (
             <div key={t} className="flex items-center gap-1.5">
@@ -90,7 +90,6 @@ export default function GraphHeader({
           ))}
         </div>
 
-        {/* THEME */}
         <div className="flex items-center gap-3 border-l border-border pl-8">
           <Tooltip>
             <TooltipTrigger asChild>
