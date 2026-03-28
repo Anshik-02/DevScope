@@ -26,7 +26,7 @@ const edgeTypes = { default: HierarchyEdge };
 // import { WelcomeToast } from "@/components/ui/toast";
 import GraphCanvas from "@/components/graph/graphCanvas";
 import CustomNode from "@/components/graph/customGraph";
-import { HierarchyEdge } from "@/components/graph/heirarchyGraph";
+import { HierarchyEdge } from "@/components/graph/heirarchyGraph";Header
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useGraph } from "@/hooks/useGraph";
 import getLayoutedElements from "@/components/graph/layout";

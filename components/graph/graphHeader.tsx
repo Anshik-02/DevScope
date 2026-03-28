@@ -37,7 +37,7 @@ export default function GraphHeader({
     <header className="h-16 border-b border-border bg-card/70 backdrop-blur-2xl flex items-center justify-between px-6 z-[60] shrink-0 relative transition-all">
       <div className="absolute inset-0 bg-gradient-to-b from-white/[0.05] to-transparent pointer-events-none" />
       
-      {/* LEFT */}
+  
       <div className="flex items-center gap-6">
         
         <div className="flex items-center gap-3 mr-4">
@@ -67,10 +67,10 @@ export default function GraphHeader({
           </div>
         </div>
 
-        {/* SEARCH */}
+  
 
 
-        {/* SYSTEM BADGE */}
+
         <div className="h-7 px-3 bg-purple-500/10 border border-purple-500/20 rounded-full flex items-center gap-1.5 ml-2">
           <div className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
           <span className="text-[9px] font-black uppercase tracking-widest text-purple-600">Active Core</span>

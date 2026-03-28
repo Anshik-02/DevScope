@@ -64,12 +64,12 @@ const submitHandler = async () => {
   return (
     <section className="relative pb-24">
       <div className="mx-auto max-w-3xl px-6 text-center">
-        {/* Label */}
+
         <p className="mb-4 text-sm font-medium text-muted-foreground uppercase tracking-widest">
           Try it now — paste a GitHub repo URL
         </p>
 
-        {/* Input Group */}
+
         <div
           className={`relative flex items-center rounded-2xl border-2 transition-all duration-300 shadow-lg dark:shadow-primary/5 ${
             focused

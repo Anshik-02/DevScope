@@ -20,18 +20,14 @@ export default function Home() {
           backgroundSize: "60px 60px",
         }}
       />
-      {/* Sticky top gradient fade */}
       <div className="pointer-events-none fixed top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent -z-10" />
-
       <Navbar />
-
       <main>
         <Hero />
         <Inputt />
         <Features />
         <CtaSection />
       </main>
-
       <Footer />
     </div>
   );
