@@ -1,33 +1,16 @@
-"use client"
+"use client";
 import { useState } from "react";
-import axios from "axios"
+import axios from "axios";
+import Navbar from "@/components/navbar";
+import Inputt from "@/components/inputText";
+import Hero from "@/components/hero";
 
 export default function Home() {
-const [link,setLink]=useState("")
-
-const changeHandler=(e)=>{
-e.preventDefault()
-const {value}=e.target
-setLink(value)
-
-}
- 
-const submitHandler=async()=>{
-  
-console.log(link)
-const res=await axios.post("/api/analyse",{link})
-console.log(res.data)
-
-}
   return (
-   <div>
-
-  
-<input
-onChange={changeHandler}
-value={link}
- placeholder="input the repo"></input>
-<button onClick={submitHandler}>submit</button>
- </div>
+    <div className=" h-screen bg-gradient-to-br from-black via-purple-950 to-black text-white">
+      <Navbar />
+      <Hero />
+      <Inputt />
+    </div>
   );
 }
