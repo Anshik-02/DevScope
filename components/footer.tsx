@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 const Footer = () => {
   return (
-    <footer className=" text-black overflow-hidden relative font-sans min-h-screen">
+    <footer className="text-foreground overflow-hidden relative font-sans min-h-screen">
       
       <div className="w-full px-6 md:px-12 lg:px-24 relative z-10">
 
@@ -39,18 +39,18 @@ const Footer = () => {
 
           {/* CTA */}
           <div className="w-full lg:w-1/3">
-            <span className="font-mono text-[12px] uppercase tracking-widest text-gray-400 mb-8 block">
+            <span className="font-mono text-[12px] uppercase tracking-widest text-muted-foreground mb-8 block">
               Try DevScope
             </span>
 
-            <div className="w-full max-w-xl bg-[#333333] rounded-full p-2 pl-6 pr-2 flex items-center justify-between gap-4 shadow-xl hover:shadow-2xl transition-all duration-300">
+            <div className="w-full max-w-xl bg-accent/50 border border-border rounded-full p-2 pl-6 pr-2 flex items-center justify-between gap-4 shadow-xl hover:shadow-2xl transition-all duration-300">
               <input
                 type="text"
                 placeholder="Paste GitHub repo / file link..."
-                className="bg-transparent outline-none text-white placeholder-gray-400 font-mono text-sm w-full"
+                className="bg-transparent outline-none text-foreground placeholder-muted-foreground font-mono text-sm w-full"
               />
 
-              <button className="bg-white text-black px-6 py-3 rounded-full font-bold hover:scale-105 transition-transform duration-200 text-sm flex ">
+              <button className="bg-foreground text-background px-6 py-3 rounded-full font-bold hover:scale-105 transition-transform duration-200 text-sm flex">
                 Analyze 
               </button>
             </div>
@@ -60,21 +60,21 @@ const Footer = () => {
           <div className="flex gap-12 md:gap-32 text-lg md:text-xl font-medium leading-snug pt-2">
             
             <div className="flex flex-col gap-1">
-              <span className="font-mono text-[12px] uppercase tracking-widest text-gray-400 mb-6 block">
+              <span className="font-mono text-[12px] uppercase tracking-widest text-muted-foreground mb-6 block">
                 Product
               </span>
               <Link href="/" className="hover:opacity-60">Home</Link>
-              <Link href="/graph" className="hover:opacity-60">Graph View</Link>
-              <Link href="/docs" className="hover:opacity-60">Docs</Link>
+              <Link href="/" className="hover:opacity-60">Graph View</Link>
+              <Link href="/" className="hover:opacity-60">Docs</Link>
             </div>
 
             <div className="flex flex-col gap-1">
-              <span className="font-mono text-[12px] uppercase tracking-widest text-gray-400 mb-6 block">
+              <span className="font-mono text-[12px] uppercase tracking-widest text-muted-foreground mb-6 block">
                 Company
               </span>
-              <Link href="/about" className="hover:opacity-60">About</Link>
-              <Link href="/privacy" className="hover:opacity-60">Privacy</Link>
-              <Link href="/terms" className="hover:opacity-60">Terms</Link>
+              <Link href="/" className="hover:opacity-60">About</Link>
+              <Link href="/" className="hover:opacity-60">Privacy</Link>
+              <Link href="/" className="hover:opacity-60">Terms</Link>
             </div>
 
           </div>
@@ -82,7 +82,7 @@ const Footer = () => {
 
         {/* FOOTNOTE */}
         <div className="mb-4">
-          <p className="text-[10px] uppercase tracking-widest text-gray-500">
+          <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
             © DevScope, {new Date().getFullYear()} — Visualize. Understand. Ship faster.
           </p>
         </div>
@@ -92,7 +92,7 @@ const Footer = () => {
       <div className="w-full leading-none ">
         <h1
           style={{ fontFamily: "'Switzer', -apple-system, BlinkMacSystemFont, sans-serif", fontWeight: 300 }}
-          className="text-[20vw] leading-[0.75] text-center tracking-tighter pointer-events-none select-none translate-y-[6vw]"
+          className="dark:text-white text-[20vw] leading-[0.75] text-center tracking-tighter pointer-events-none select-none translate-y-[6vw]"
         >
           DEVSCOPE
         </h1>

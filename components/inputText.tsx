@@ -71,10 +71,10 @@ const submitHandler = async () => {
 
         {/* Input Group */}
         <div
-          className={`relative flex items-center rounded-2xl border-2 transition-all duration-300 shadow-lg ${
+          className={`relative flex items-center rounded-2xl border-2 transition-all duration-300 shadow-lg dark:shadow-primary/5 ${
             focused
-              ? "border-foreground/30 ring-4 ring-foreground/10 bg-background shadow-2xl scale-[1.01]"
-              : "border-border/60 bg-background/80 hover:border-border hover:shadow-xl"
+              ? "border-foreground/30 ring-4 ring-foreground/10 bg-background shadow-2xl dark:shadow-primary/10 scale-[1.01]"
+              : "border-border/60 bg-background/80 hover:border-border hover:shadow-xl dark:hover:shadow-primary/10"
           } backdrop-blur-xl`}
         >
           <GitBranch
@@ -89,7 +89,7 @@ const submitHandler = async () => {
             onKeyDown={handleKeyDown}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
-            className="w-full bg-transparent py-5 pl-12 pr-40 text-base font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
+            className="w-full bg-transparent py-5 pl-12 pr-40 dark:shadow-xl dark:shadow-white/20 text-base font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none rounded-xl"
             id="repo-input"
           />
           <button
