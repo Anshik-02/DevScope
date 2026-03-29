@@ -178,6 +178,8 @@ export function useProgressiveGraph(onNodeToggle?: (id: string) => void) {
         id: "SYSTEM_ROOT",
         type: "minimal",
         position: { x: 0, y: 0 },
+        width: nodeWidth,
+        height: nodeHeight,
         data: {
             label: "Application Root",
             type: "folder",

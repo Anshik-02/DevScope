@@ -1,7 +1,12 @@
 "use client";
 import { useTheme } from "next-themes";
 import { Handle, Position } from "reactflow";
-import { Globe, Server, HardDrive, Puzzle, Folder } from "lucide-react";
+import { Globe, Server, HardDrive, Puzzle, Folder, MousePointer2, ChevronRight } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export interface MinimalNodeData {
   label: string;
@@ -33,54 +38,79 @@ export default function MinimalNode({ data }: { data: MinimalNodeData }) {
   const glowOpacity = isDark ? "0.4" : "0.2";
 
   return (
-    <div
-      className={`relative group flex items-center gap-3 px-4 py-3 rounded-2xl border transition-all duration-300 min-w-[200px] hover:shadow-xl cursor-pointer ${
-        data.isExpanded 
-          ? `bg-background border-current ring-1 ring-current shadow-[0_0_20px_rgba(0,0,0,0.1)]` 
-          : "bg-card border-border shadow-lg"
-      } ${config.color}`}
-      style={{
-        borderColor: data.isExpanded ? "currentColor" : undefined,
-        boxShadow: data.isExpanded ? `0 0 25px currentColor` : undefined,
-        opacity: data.isExpanded ? 1 : (isDark ? 0.9 : 1)
-      }}
-    >
-      <div className={`p-2 rounded-xl ${config.bg} ${config.color}`}>
-        <Icon size={20} strokeWidth={2.5} />
-      </div>
-      <div className="flex flex-col flex-1 overflow-hidden pr-2">
-        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-          {data.type}
-        </span>
-        <span className="text-sm font-semibold truncate" title={data.label}>
-          {data.label}
-        </span>
-      </div>
-
-      {/* Toggle Button */}
-      {data.hasChildren && !data.hideToggle && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            if (data.onToggle) data.onToggle();
+    <Tooltip delayDuration={300}>
+      <TooltipTrigger asChild>
+        <div
+          className={`relative group flex items-center gap-3 px-4 py-3 rounded-2xl border transition-all duration-300 min-w-[200px] hover:shadow-xl cursor-pointer ${
+            data.isExpanded 
+              ? `bg-background border-current ring-1 ring-current shadow-[0_0_20px_rgba(0,0,0,0.1)]` 
+              : "bg-card border-border shadow-lg"
+          } ${config.color}`}
+          style={{
+            borderColor: data.isExpanded ? "currentColor" : undefined,
+            boxShadow: data.isExpanded ? `0 0 25px currentColor` : undefined,
+            opacity: data.isExpanded ? 1 : (isDark ? 0.9 : 1)
           }}
-          className={`absolute -right-3 -top-3 w-7 h-7 rounded-full bg-background border-2 flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-95 group/btn ${
-            data.isExpanded ? "border-red-500/50 text-red-500" : "border-emerald-500/50 text-emerald-500"
-          }`}
         >
-          <div className={`absolute inset-0 rounded-full animate-ping opacity-20 ${
-              data.isExpanded ? "bg-red-500" : "bg-emerald-500"
-          }`} />
-          {data.isExpanded ? (
-            <span className="font-black text-xs">−</span>
-          ) : (
-            <span className="font-black text-xs">+</span>
-          )}
-        </button>
-      )}
+          <div className={`p-2 rounded-xl ${config.bg} ${config.color}`}>
+            <Icon size={20} strokeWidth={2.5} />
+          </div>
+          <div className="flex flex-col flex-1 overflow-hidden pr-2">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+              {data.type}
+            </span>
+            <span className="text-sm font-semibold truncate">
+              {data.label}
+            </span>
+          </div>
 
-      <Handle type="target" position={Position.Left} style={{ opacity: 0 }} />
-      <Handle type="source" position={Position.Right} style={{ opacity: 0 }} />
-    </div>
+          {/* Toggle Button */}
+          {data.hasChildren && !data.hideToggle && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (data.onToggle) data.onToggle();
+              }}
+              className={`absolute -right-3 -top-3 w-7 h-7 rounded-full bg-background border-2 flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-95 group/btn ${
+                data.isExpanded ? "border-red-500/50 text-red-500" : "border-emerald-500/50 text-emerald-500"
+              }`}
+            >
+              <div className={`absolute inset-0 rounded-full animate-ping opacity-20 ${
+                  data.isExpanded ? "bg-red-500" : "bg-emerald-500"
+              }`} />
+              {data.isExpanded ? (
+                <span className="font-black text-xs">−</span>
+              ) : (
+                <span className="font-black text-xs">+</span>
+              )}
+            </button>
+          )}
+
+          <Handle type="target" position={Position.Left} style={{ opacity: 0 }} />
+          <Handle type="source" position={Position.Right} style={{ opacity: 0 }} />
+        </div>
+      </TooltipTrigger>
+      <TooltipContent side="top" className="flex flex-col gap-1.5 p-3 z-[10000] border-border/50 bg-card/95 backdrop-blur-xl shadow-2xl">
+         <div className="flex items-center gap-2">
+            <div className={`w-1.5 h-1.5 rounded-full ${config.bg} ring-1 ring-current animate-pulse`} />
+            <span className="text-[11px] font-black uppercase tracking-widest text-foreground">{data.label}</span>
+         </div>
+         <p className="text-[9px] text-muted-foreground opacity-70 italic leading-relaxed">
+            {data.hasChildren 
+              ? `Architectural container with ${data.isExpanded ? 'active' : 'nested'} dependencies.`
+              : `Final leaf node representing a ${data.type} instance.`
+            }
+         </p>
+         {data.hasChildren && (
+           <div className="mt-1 pt-1 border-t border-white/5 flex items-center gap-2">
+              <MousePointer2 size={10} className="text-purple-400" />
+              <span className="text-[8px] font-bold uppercase tracking-tighter text-purple-400">
+                {data.isExpanded ? "Click to collapse" : "Click to discovery children"}
+              </span>
+              <ChevronRight size={8} className="text-purple-400 opacity-50" />
+           </div>
+         )}
+      </TooltipContent>
+    </Tooltip>
   );
 }

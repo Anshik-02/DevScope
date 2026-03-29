@@ -10,7 +10,13 @@ import {
   Boxes,
   Wrench,
   FileCode2,
+  MousePointer2,
 } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const nodeColors: Record<string, string> = {
   folder:    "#8b5cf6",
@@ -54,16 +60,18 @@ export default function CustomNode({ data, selected: isSelectedReactFlow }: Node
   })();
 
   return (
-    <div
-      className={`relative p-5 rounded-[2.5rem] border-2 transition-all duration-700 group cursor-pointer glass-frosted ${
-        isSelected
-          ? `ring-2 ring-primary/30 scale-[1.07] -translate-y-6 border-primary/40 bg-accent/25 z-[100]`
-          : `border-white/5 hover:scale-[1.05] hover:-translate-y-3 hover:border-white/20 bg-card/40`
-      } ${
-        highlighted === false ? "opacity-30 grayscale-[0.4] scale-[0.98]" : "opacity-100 shadow-2xl shadow-cyan-500/20"
-      } text-card-foreground`}
-      style={{ minWidth: `${nodeWidth}px` }}
-    >
+    <Tooltip delayDuration={300}>
+      <TooltipTrigger asChild>
+        <div
+          className={`relative p-5 rounded-[2.5rem] border-2 transition-all duration-700 group cursor-pointer glass-frosted ${
+            isSelected
+              ? `ring-2 ring-primary/30 scale-[1.07] -translate-y-6 border-primary/40 bg-accent/25 z-[100]`
+              : `border-white/5 hover:scale-[1.05] hover:-translate-y-3 hover:border-white/20 bg-card/40`
+          } ${
+            highlighted === false ? "opacity-30 grayscale-[0.4] scale-[0.98]" : "opacity-100 shadow-2xl shadow-cyan-500/20"
+          } text-card-foreground`}
+          style={{ minWidth: `${nodeWidth}px` }}
+        >
       {/* Sub-layer: High-End Prism Glass */}
       <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-br from-white/[0.08] via-transparent to-black/[0.05] pointer-events-none" />
 
@@ -141,5 +149,30 @@ export default function CustomNode({ data, selected: isSelectedReactFlow }: Node
         className="group-hover:!opacity-100"
       />
     </div>
+    </TooltipTrigger>
+    <TooltipContent side="top" className="flex flex-col gap-2 p-4 z-[10000] border-border/50 bg-card/95 backdrop-blur-3xl shadow-2xl max-w-sm">
+       <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border border-white/10" style={{ backgroundColor: `${color}22`, color: color }}>
+            <TypeIcon size={16} />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[12px] font-black uppercase tracking-widest text-foreground">{label}</span>
+            <span className="text-[9px] font-bold text-muted-foreground uppercase">{type} Instance</span>
+          </div>
+       </div>
+       <p className="text-[10px] text-muted-foreground opacity-80 italic leading-relaxed">
+          {sequence === 1 
+            ? "This is the primary architectural entry point. All system flows originate from here."
+            : `Deep-layered ${type} logic that handles downstream orchestration.`
+          }
+       </p>
+       <div className="mt-1 pt-2 border-t border-white/5 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <MousePointer2 size={10} className="text-blue-400" />
+            <span className="text-[8px] font-black uppercase tracking-tighter text-blue-400">Click to focus node</span>
+          </div>
+       </div>
+    </TooltipContent>
+    </Tooltip>
   );
 }

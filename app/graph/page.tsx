@@ -16,6 +16,7 @@ import NodeDetailsPanel from "@/components/graph/rightSideBar";
 import SearchOverlay from "@/components/graph/searchOverlay";
 import CustomNode from "@/components/graph/CustomNode";
 import HierarchyEdge from "@/components/graph/HierarchyEdge";
+import OnboardingToast from "@/components/graph/OnboardingToast";
 
 // Constants
 const nodeTypes = { 
@@ -69,6 +70,10 @@ function GraphPage() {
   const [history, setHistory] = useState<any[]>([]);
   const lastFocusedId = useRef<string | null>(null);
 
+  // Minimal mode auto-trace state
+  const [isAutoTracing, setIsAutoTracing] = useState(false);
+  const [autoTraceIndex, setAutoTraceIndex] = useState(0);
+
   const { 
     nodes, 
     edges, 
@@ -104,12 +109,34 @@ function GraphPage() {
       const { nodes: savedNodes, edges: savedEdges } = JSON.parse(savedData);
       if (savedNodes && savedEdges) {
         initializeGraph(savedNodes, savedEdges);
-        setTimeout(() => fitView({ padding: 0.3, duration: 800 }), 300);
+        // Instant hard-reset focus on root
+        setTimeout(() => {
+          fitView({ nodes: [{ id: "SYSTEM_ROOT" }], padding: 4, duration: 0 });
+        }, 300);
       }
     } catch (e) {
       console.error("Failed to parse local storage graph data:", e);
     }
   }, []);
+
+  // Robust Initial Centering Effect
+  const initialCenterRef = useRef(0);
+  useEffect(() => {
+    if (nodes.length > 0 && initialCenterRef.current < 2) {
+      initialCenterRef.current += 1;
+      
+      // Perform centering attempts
+      const timer = setTimeout(() => {
+        fitView({
+          nodes: [{ id: 'SYSTEM_ROOT' }],
+          padding: 2.5,
+          duration: 1200
+        });
+      }, 800 * initialCenterRef.current);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [nodes, fitView]);
 
   // History Actions
   const fetchHistory = useCallback(() => {
@@ -265,34 +292,54 @@ function GraphPage() {
     }
   }, [nodes, edges, trackingNodeId, focusedNodeId, fitView]);
 
-  // Auto-Play recursively expands the graph (Minimal) or steps through sequence (Complex)
+  // Auto-Play: Complex mode steps through sequence
   useEffect(() => {
     if (!isPlaying) return;
-
-    if (graphView === "complex") {
-        const timer = setTimeout(() => {
-            nextSequence();
-        }, 4000);
-        return () => clearTimeout(timer);
-    }
-
-    const unexpanded = nodes.find((n: any) => n.data?.hasChildren && !n.data?.isExpanded);
-    
-    if (!unexpanded) {
-      setIsPlaying(false);
-      return;
-    }
+    if (graphView !== "complex") return;
 
     const timer = setTimeout(() => {
-      setTrackingNodeId(unexpanded.id);
-      toggleNode(unexpanded.id);
-    }, 4500);
-
+      nextSequence();
+    }, 4000);
     return () => clearTimeout(timer);
-  }, [isPlaying, nodes, toggleNode, graphView, nextSequence]);
+  }, [isPlaying, graphView, nextSequence]);
+
+  // Auto-Trace: Minimal mode — cinematic walk through all visible nodes
+  const visibleNodes = useMemo(() => nodes.filter((n: any) => !n.hidden), [nodes]);
+
+  const goToTraceNode = useCallback((index: number, nodeList: any[]) => {
+    if (!nodeList.length) return;
+    const safeIndex = ((index % nodeList.length) + nodeList.length) % nodeList.length;
+    const node = nodeList[safeIndex];
+    if (!node) return;
+    setAutoTraceIndex(safeIndex);
+    setSelectedNode(node);
+    setTrackingNodeId(node.id);
+
+    // Auto-expand: if this node has children and they are not yet shown, expand it
+    if (node.data?.hasChildren && !node.data?.isExpanded) {
+      toggleNode(node.id);
+    }
+
+    fitView({
+      nodes: [node],
+      duration: 900,
+      padding: 0.55,
+      maxZoom: 1.2,
+    });
+  }, [fitView, setSelectedNode, toggleNode]);
+
+  useEffect(() => {
+    if (!isAutoTracing || graphView !== "minimal" || visibleNodes.length === 0) return;
+    const timer = setTimeout(() => {
+      const nextIndex = (autoTraceIndex + 1) % visibleNodes.length;
+      goToTraceNode(nextIndex, visibleNodes);
+    }, 3200);
+    return () => clearTimeout(timer);
+  }, [isAutoTracing, autoTraceIndex, visibleNodes, graphView, goToTraceNode]);
 
   return (
     <div className="w-full h-screen bg-background flex flex-col relative font-sans text-foreground overflow-hidden">
+      <OnboardingToast />
       
       {/* Search Overlay */}
       <SearchOverlay
@@ -327,16 +374,16 @@ function GraphPage() {
       />
 
       {/* Insight Bar */}
-      <div className="h-10 border-b border-border bg-muted/20 backdrop-blur-md flex items-center px-6 gap-6 z-50">
-        <div className="flex items-center gap-2">
-          <div className="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded text-[9px] font-black text-emerald-600 tracking-tighter uppercase">
+      <div className="h-10 border-b border-border bg-muted/20 backdrop-blur-md flex items-center px-4 sm:px-6 gap-3 sm:gap-6 z-50">
+        <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-hide">
+          <div className="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded text-[9px] font-black text-emerald-600 tracking-tighter uppercase shrink-0">
             Global View
           </div>
-          <span className="text-[10px] font-bold text-muted-foreground italic uppercase tracking-widest opacity-60">
+          <span className="text-[10px] font-bold text-muted-foreground italic uppercase tracking-widest opacity-60 hidden sm:inline">
             Insight:
           </span>
-          <span className="text-[10px] font-black text-foreground italic uppercase tracking-widest">
-            System-wide Architecture Overview
+          <span className="text-[10px] font-black text-foreground italic uppercase tracking-widest truncate">
+            {repoName.split('/').pop()} Architecture Overview
           </span>
         </div>
       </div>
@@ -383,6 +430,10 @@ function GraphPage() {
             onNodeClick={onNodeClick}
             nodeTypes={nodeTypes}
             edgeTypes={edgeTypes}
+            onInit={(instance) => {
+               // Hard reset to ensure SYSTEM_ROOT is found immediately
+               instance.fitView({ nodes: [{ id: "SYSTEM_ROOT" }], padding: 5, duration: 0 });
+            }}
             proOptions={{ hideAttribution: true }}
             minZoom={0.05}
             maxZoom={2}
@@ -415,33 +466,33 @@ function GraphPage() {
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-purple-500/[0.03] dark:bg-purple-500/[0.07] blur-[150px] rounded-full pointer-events-none" />
           </ReactFlow>
 
-          {/* TRACE NAVIGATION OVERLAY (Complex Mode Only) */}
+           {/* TRACE NAVIGATION OVERLAY (Complex Mode) */}
           {graphView === "complex" && (
-            <div className="absolute top-6 sm:top-6 right-6 sm:right-6 bottom-6 sm:bottom-auto left-6 sm:left-auto z-50 flex items-center justify-center gap-3 bg-card/60 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl overflow-x-auto max-w-[90vw]">
+            <div className="absolute bottom-4 sm:top-6 sm:bottom-auto left-1/2 sm:left-auto sm:right-6 -translate-x-1/2 sm:translate-x-0 z-[100] flex items-center justify-center gap-2 sm:gap-3 bg-card/70 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl max-w-[95vw]">
                 <button 
                   onClick={prevSequence}
-                  className="px-3 sm:px-4 py-2 hover:bg-white/5 rounded-xl text-[9px] sm:text-[10px] font-black tracking-widest uppercase transition-all"
+                  className="px-3 py-2 hover:bg-white/5 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all"
                 >
                   Prev
                 </button>
                 <div className="h-4 w-px bg-white/10" />
                 <button 
                   onClick={nextSequence}
-                  className="px-3 sm:px-4 py-2 hover:bg-white/5 rounded-xl text-[9px] sm:text-[10px] font-black tracking-widest uppercase transition-all"
+                  className="px-3 py-2 hover:bg-white/5 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all"
                 >
                   Next
                 </button>
                 <div className="h-4 w-px bg-white/10" />
                 <button 
                   onClick={() => setIsPlaying(!isPlaying)}
-                  className={`px-4 sm:px-6 py-2 rounded-xl text-[9px] sm:text-[10px] font-black tracking-widest uppercase transition-all flex items-center gap-2
+                  className={`px-4 py-2 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all flex items-center gap-2
                     ${isPlaying ? "bg-purple-500 text-white shadow-[0_0_20px_rgba(168,85,247,0.4)]" : "bg-white/5 text-muted-foreground hover:bg-white/10 hover:text-foreground"}
                   `}
                 >
                   {isPlaying ? "Stop" : "Play"}
                 </button>
                 <div className="h-4 w-px bg-white/10 hidden sm:block" />
-                <div className="px-3 sm:px-4 text-[10px] sm:text-[11px] font-black tabular-nums tracking-tighter">
+                <div className="px-3 py-1 bg-white/5 rounded-lg text-[10px] font-black tabular-nums tracking-tighter">
                    <span className="text-purple-500">{sequenceIndex + 1}</span>
                    <span className="opacity-30 mx-1">/</span>
                    <span className="opacity-60">{totalSequence}</span>
@@ -449,11 +500,60 @@ function GraphPage() {
             </div>
           )}
 
-          {graphView === "minimal" && !nodes.some((n: any) => n.data?.isExpanded) && (
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-6 sm:px-8 py-4 bg-card/90 backdrop-blur-xl border border-blue-500/30 shadow-[0_0_50px_rgba(59,130,246,0.15)] rounded-2xl sm:rounded-3xl animate-bounce pointer-events-none text-xs sm:text-sm font-black tracking-wider z-50 flex items-center gap-4 text-center max-w-[80vw]">
-               Click Root Node
+          {/* AUTO-TRACE OVERLAY (Minimal Mode) */}
+          {graphView === "minimal" && visibleNodes.length > 0 && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-2 sm:gap-3 bg-card/70 backdrop-blur-xl border border-white/10 rounded-2xl px-3 py-2 shadow-2xl max-w-[95vw]">
+              <button
+                onClick={() => {
+                  const newIndex = (autoTraceIndex - 1 + visibleNodes.length) % visibleNodes.length;
+                  goToTraceNode(newIndex, visibleNodes);
+                }}
+                className="px-3 py-2 hover:bg-white/5 rounded-xl text-[9px] font-black tracking-widest uppercase transition-all"
+              >
+                Prev
+              </button>
+              <div className="h-4 w-px bg-white/10" />
+              <button
+                onClick={() => {
+                  const newIndex = (autoTraceIndex + 1) % visibleNodes.length;
+                  goToTraceNode(newIndex, visibleNodes);
+                }}
+                className="px-3 py-2 hover:bg-white/5 rounded-xl text-[9px] font-black tracking-widest uppercase transition-all"
+              >
+                Next
+              </button>
+              <div className="h-4 w-px bg-white/10" />
+              <button
+                onClick={() => {
+                  if (isAutoTracing) {
+                    setIsAutoTracing(false);
+                  } else {
+                    setIsAutoTracing(true);
+                    goToTraceNode(autoTraceIndex, visibleNodes);
+                  }
+                }}
+                className={`px-5 py-2 rounded-xl text-[9px] font-black tracking-widest uppercase transition-all ${
+                  isAutoTracing
+                    ? "bg-purple-500 text-white shadow-[0_0_20px_rgba(168,85,247,0.4)]"
+                    : "bg-white/5 text-muted-foreground hover:bg-white/10 hover:text-foreground"
+                }`}
+              >
+                {isAutoTracing ? "Stop" : "Auto Trace"}
+              </button>
+              {isAutoTracing && (
+                <>
+                  <div className="h-4 w-px bg-white/10" />
+                  <div className="px-3 text-[10px] font-black tabular-nums tracking-tighter">
+                    <span className="text-purple-400">{autoTraceIndex + 1}</span>
+                    <span className="opacity-30 mx-1">/</span>
+                    <span className="opacity-60">{visibleNodes.length}</span>
+                  </div>
+                </>
+              )}
             </div>
           )}
+
+        
         </main>
 
         <NodeDetailsPanel
@@ -492,7 +592,7 @@ function GraphPage() {
         />
 
         {/* History Drawer */}
-        <aside className={`fixed top-0 right-0 h-full w-[350px] bg-card/80 backdrop-blur-3xl border-l border-border z-[100] transform transition-transform duration-500 ease-in-out shadow-[-20px_0_50px_rgba(0,0,0,0.5)] ${
+        <aside className={`fixed top-0 right-0 h-full w-[85%] sm:w-[350px] bg-card/80 backdrop-blur-3xl border-l border-border z-[100] transform transition-transform duration-500 ease-in-out shadow-[-20px_0_50px_rgba(0,0,0,0.5)] ${
           isHistoryOpen ? "translate-x-0" : "translate-x-full"
         }`}>
           <div className="p-8 flex flex-col h-full">
