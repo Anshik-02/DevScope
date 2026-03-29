@@ -112,42 +112,42 @@ function GraphPage() {
   }, []);
 
   // History Actions
-  const fetchHistory = useCallback(async () => {
+  const fetchHistory = useCallback(() => {
     try {
-      const res = await fetch("/api/graphs/history");
-      if (res.ok) {
-        const data = await res.json();
-        setHistory(data);
+      const savedHistory = localStorage.getItem("devscope_history");
+      if (savedHistory) {
+        setHistory(JSON.parse(savedHistory));
       }
     } catch (error) {
       console.error("Failed to fetch history:", error);
     }
   }, []);
 
-  const saveGraph = useCallback(async () => {
-    if (!nodes.length) {
-      console.log("[DB PUSH] Skipping save: No nodes on canvas.");
-      return;
-    }
-    console.log("[DB PUSH] Triggering auto-save for:", repoName);
+  const saveGraph = useCallback(() => {
+    if (!nodes.length) return;
+    
     try {
-      const res = await fetch("/api/graphs/save", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          repoName,
-          nodes: rawNodes, 
-          edges: rawEdges
-        })
-      });
-      if (res.ok) {
-        console.log("[DB PUSH] Save SUCCESS. State persisted.");
-      } else {
-        const err = await res.text();
-        console.error("[DB PUSH] Save FAILED:", err);
-      }
+      const savedHistory = localStorage.getItem("devscope_history");
+      let currentHistory = savedHistory ? JSON.parse(savedHistory) : [];
+      
+      const newState = {
+        id: crypto.randomUUID(),
+        repoName,
+        nodes: rawNodes,
+        edges: rawEdges,
+        createdAt: new Date().toISOString()
+      };
+
+      // Keep only unique repos, move newest to top
+      currentHistory = [newState, ...currentHistory.filter((h: any) => h.repoName !== repoName)].slice(0, 5);
+      
+      localStorage.setItem("devscope_history", JSON.stringify(currentHistory));
+      localStorage.setItem("graphData", JSON.stringify({ nodes: rawNodes, edges: rawEdges }));
+      localStorage.setItem("repoName", repoName);
+      
+      console.log("[LOCAL SAVE] State persisted to browser storage.");
     } catch (error) {
-      console.error("[DB PUSH] Save CRASHED:", error);
+      console.error("[LOCAL SAVE] Failed:", error);
     }
   }, [nodes.length, repoName, rawNodes, rawEdges]);
 
@@ -155,17 +155,21 @@ function GraphPage() {
   useEffect(() => {
     const timer = setTimeout(() => {
       saveGraph();
-    }, 2000); // Trigger save after 2s of inactivity
+    }, 2000);
     return () => clearTimeout(timer);
   }, [nodes, saveGraph]);
 
-  const loadGraphFromHistory = async (id: string, name: string) => {
+  const loadGraphFromHistory = (id: string, name: string) => {
     try {
-      const res = await fetch(`/api/graphs/${id}`);
-      if (res.ok) {
-        const data = await res.json();
+      const savedHistory = localStorage.getItem("devscope_history");
+      if (!savedHistory) return;
+      
+      const currentHistory = JSON.parse(savedHistory);
+      const graphEntry = currentHistory.find((h: any) => h.id === id);
+      
+      if (graphEntry) {
         setRepoName(name.toUpperCase());
-        initializeGraph(data.nodes, data.edges);
+        initializeGraph(graphEntry.nodes, graphEntry.edges);
         setIsHistoryOpen(false);
         setTimeout(() => fitView({ padding: 0.3, duration: 1000 }), 300);
       }
