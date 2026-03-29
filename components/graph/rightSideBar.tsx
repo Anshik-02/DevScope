@@ -30,6 +30,7 @@ interface Props {
   onTrace: () => void;
   onSelectNode: (node: Node) => void;
   onAskAI: () => void;
+  onDeepAsk: () => void;
 
   aiText: string;
   aiLoading: boolean;
@@ -57,6 +58,7 @@ export default function NodeDetailsPanel({
   onTrace,
   onSelectNode,
   onAskAI,
+  onDeepAsk,
   aiText,
   aiLoading,
   isOpen,
@@ -243,7 +245,10 @@ export default function NodeDetailsPanel({
         <div className="flex flex-col gap-3">
           {selectedNode.data?.type !== "folder" && (
             <>
-              <button className="w-full py-3 bg-card border border-border rounded-xl text-[11px] font-black hover:bg-muted transition flex items-center justify-center gap-2">
+              <button
+                onClick={onDeepAsk}
+                className="w-full py-3 bg-card border border-border rounded-xl text-[11px] font-black hover:bg-muted transition flex items-center justify-center gap-2"
+              >
                 <Cpu size={14} /> Ask AI about your query
               </button>
 
